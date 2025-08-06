@@ -12,6 +12,8 @@ function love.update(dt)
     w = w + 1
     h = h + 0.1
     number = number + 1
+    playerX = love.mouse.getX()
+    playerY = love.mouse.getY()
 end
 
 -- Draw a coloured rectangle.
@@ -23,6 +25,9 @@ function love.draw()
     love.graphics.circle("line", 450, 330, 90)
 
     quartcircle = math.pi / 2 -- Define 1/4 angle constant
+
+    love.graphics.setColor(0.3, 0.3, 1)
+    love.graphics.rectangle("fill", playerX, playerY, 50, 50)
 
     love.graphics.arc("fill", "open", 483, 330, 90, 15, math.pi / 3)    
     -- Angles are clockwise, as y value grows when going down 
