@@ -7,6 +7,17 @@ function love.load()
     love.graphics.setBackgroundColor(0.3, 0, 0.1)
 end
 
+function love.mousepressed(x, y, button, istouch, presses)
+    if button == 1 then
+        -- Reset rectangle size and position when left mouse button is pressed.
+        w, h = 60, 20
+        x, y = x - w / 2, y - h / 2
+    elseif button == 2 then
+        -- Reset number when right mouse button is pressed.
+        number = 0
+    end
+end
+
 -- Increase the size of the rectangle every frame.
 function love.update(dt)
     w = w + 1
