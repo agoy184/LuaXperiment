@@ -1,10 +1,12 @@
 _G.love = require("love")
 
+
 -- Load some default values for our rectangle.
 function love.load()
     x, y, w, h = 20, 200, 60, 20
     _G.number = 0
-    love.graphics.setBackgroundColor(0.3, 0, 0.1)
+    love.graphics.setBackgroundColor(0.2, 0, 0.1)
+    print("Welcome to LuaXperiment!")
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
@@ -20,8 +22,12 @@ end
 
 -- Increase the size of the rectangle every frame.
 function love.update(dt)
-    w = w + 1
-    h = h + 0.1
+    if w < 700 then
+        w = w + 100 * dt
+    end
+    if h < 300 then
+        h = h + 100 * dt
+    end
     number = number + 1
     playerX = love.mouse.getX()
     playerY = love.mouse.getY()
