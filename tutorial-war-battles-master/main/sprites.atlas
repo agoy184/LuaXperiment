@@ -71,4 +71,29 @@ animations {
   playback: PLAYBACK_LOOP_FORWARD
   fps: 9
 }
+animations {
+  id: "player-up"
+  images {
+    image: "/assets/units/infantry/up/1.png"
+  }
+  images {
+    image: "/assets/units/infantry/up/2.png"
+  }
+  images {
+    image: "/assets/units/infantry/up/3.png"
+  }
+  images {
+    image: "/assets/units/infantry/up/4.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+}
+animations {
+  id: "player-idle-down"
+  images {
+    image: "/assets/units/infantry/down/1.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 1
+}
 extrude_borders: 2
