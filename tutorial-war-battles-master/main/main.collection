@@ -1,0 +1,36 @@
+name: "main"
+scale_along_z: 0
+embedded_instances {
+  id: "map"
+  data: "components {\n"
+  "  id: \"map\"\n"
+  "  component: \"/main/map.tilemap\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "player"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"player-down\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "textures {\\n"
+  "  sampler: \\\"texture_sampler\\\"\\n"
+  "  texture: \\\"/main/sprites.atlas\\\"\\n"
+  "}\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 307.5562\n"
+  "    y: 315.6805\n"
+  "  }\n"
+  "}\n"
+  ""
+  position {
+    z: 1.0
+  }
+  rotation {
+    z: 0.008726535
+    w: 0.9999619
+  }
+}
