@@ -1,0 +1,23 @@
+script: "/main/ui.gui_script"
+fonts {
+  name: "text"
+  font: "/main/text.font"
+}
+nodes {
+  position {
+    x: 7.0
+    y: 705.0
+  }
+  size {
+    x: 200.0
+    y: 100.0
+  }
+  type: TYPE_TEXT
+  text: "SCORE: 0"
+  font: "text"
+  id: "score"
+  pivot: PIVOT_W
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

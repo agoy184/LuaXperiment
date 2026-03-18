@@ -69,3 +69,11 @@ embedded_instances {
     w: 0.9999619
   }
 }
+embedded_instances {
+  id: "gui"
+  data: "components {\n"
+  "  id: \"ui\"\n"
+  "  component: \"/main/ui.gui\"\n"
+  "}\n"
+  ""
+}
