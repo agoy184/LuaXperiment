@@ -1,0 +1,119 @@
+name: "main"
+instances {
+  id: "hero"
+  prototype: "/main/hero.go"
+  position {
+    x: 555.0
+    y: 372.0
+    z: 1.0
+  }
+}
+instances {
+  id: "NPC"
+  prototype: "/main/NPC/NPC.go"
+  position {
+    x: 789.2728
+    y: 423.30374
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "2-2"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/2-2.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 2560.0
+    y: 1536.0
+  }
+}
+embedded_instances {
+  id: "1-2"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/1-2.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 1280.0
+    y: 1536.0
+  }
+}
+embedded_instances {
+  id: "0-0"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/0-0.tilemap\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "1-1"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/1-1.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 1280.0
+    y: 768.0
+  }
+}
+embedded_instances {
+  id: "0-1"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/0-1.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    y: 768.0
+  }
+}
+embedded_instances {
+  id: "2-0"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/2-0.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 2560.0
+  }
+}
+embedded_instances {
+  id: "2-1"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/2-1.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 2560.0
+    y: 768.0
+  }
+}
+embedded_instances {
+  id: "0-2"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/0-2.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    y: 1536.0
+  }
+}
+embedded_instances {
+  id: "1-0"
+  data: "components {\n"
+  "  id: \"tiles\"\n"
+  "  component: \"/main/map/1-0.tilemap\"\n"
+  "}\n"
+  ""
+  position {
+    x: 1280.0
+  }
+}
