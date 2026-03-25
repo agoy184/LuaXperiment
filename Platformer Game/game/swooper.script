@@ -1,0 +1,161 @@
+-- swooper.script
+-- Attach to an enemy game object. Requires a collisionobject component.
+-- The enemy hovers at its spawn position and swoops down to attack
+-- when the player walks beneath it, then returns to its roost.
+
+-- ─────────────────────────────────────────────
+-- CONFIGURATION  (tweak these to taste)
+-- ─────────────────────────────────────────────
+local CFG = {
+    detect_width      = 60,   -- horizontal range (px) that triggers the swoop
+    detect_height     = 200,  -- how far BELOW the enemy to sense the player
+    swoop_speed       = 380,  -- downward swoop speed (px/s)
+    return_speed      = 120,  -- upward return speed (px/s)
+    hover_amplitude   = 6,    -- pixels of idle bob
+    hover_frequency   = 2,    -- bobs per second
+    attack_pause      = 0.18, -- seconds the enemy lingers at lowest point
+    cooldown          = 1.4,  -- seconds before it can swoop again after returning
+    damage            = 1,    -- sent to player on contact (optional)
+    player_url        = "/player#script",  -- URL of the player script (for messaging)
+}
+
+-- ─────────────────────────────────────────────
+-- STATE MACHINE
+-- ─────────────────────────────────────────────
+local STATE = {
+    HOVER   = "hover",
+    SWOOP   = "swoop",
+    PAUSE   = "pause",
+    RETURN  = "return",
+    COOLDOWN= "cooldown",
+}
+
+-- ─────────────────────────────────────────────
+-- INIT
+-- ─────────────────────────────────────────────
+function init(self)
+    self.roost_pos  = go.get_position()   -- remember spawn / roost position
+    self.state      = STATE.HOVER
+    self.timer      = 0
+    self.hover_t    = 0
+    self.player_pos = nil
+
+    -- acquire player position reference each frame via a message, or poll directly
+    -- We'll poll via go.get_position on the player object.
+    -- Adjust the player id string if your player object has a different id/path.
+    self.player_id = go.get_id("/player")
+end
+
+-- ─────────────────────────────────────────────
+-- HELPERS
+-- ─────────────────────────────────────────────
+local function player_is_below(self)
+    local ok, player_pos = pcall(go.get_position, self.player_id)
+    if not ok then return false end
+
+    local my_pos = go.get_position()
+    local dx = math.abs(player_pos.x - my_pos.x)
+    local dy = my_pos.y - player_pos.y   -- positive = player is below us
+
+    return dx <= CFG.detect_width and dy >= 0 and dy <= CFG.detect_height
+end
+
+local function move_toward_y(self, target_y, speed, dt)
+    local pos = go.get_position()
+    local diff = target_y - pos.y
+    local step = speed * dt
+
+    if math.abs(diff) <= step then
+        pos.y = target_y
+        go.set_position(pos)
+        return true   -- reached target
+    else
+        pos.y = pos.y + (diff > 0 and step or -step)
+        go.set_position(pos)
+        return false
+    end
+end
+
+-- ─────────────────────────────────────────────
+-- UPDATE
+-- ─────────────────────────────────────────────
+function update(self, dt)
+    self.hover_t = self.hover_t + dt
+
+    -- ── HOVER ────────────────────────────────
+    if self.state == STATE.HOVER then
+        -- idle bobbing
+        local pos = go.get_position()
+        pos.y = self.roost_pos.y
+              + math.sin(self.hover_t * CFG.hover_frequency * math.pi * 2)
+              * CFG.hover_amplitude
+        go.set_position(pos)
+
+        if player_is_below(self) then
+            -- lock in the target y: just above the player (player's feet)
+            local ok, ppos = pcall(go.get_position, self.player_id)
+            if ok then
+                self.swoop_target_y = ppos.y + 8   -- stop just at player level
+            else
+                self.swoop_target_y = self.roost_pos.y - CFG.detect_height
+            end
+            self.state = STATE.SWOOP
+        end
+
+    -- ── SWOOP ────────────────────────────────
+    elseif self.state == STATE.SWOOP then
+        local reached = move_toward_y(self, self.swoop_target_y, CFG.swoop_speed, dt)
+        if reached then
+            self.timer = CFG.attack_pause
+            self.state = STATE.PAUSE
+        end
+
+    -- ── PAUSE (linger at bottom) ─────────────
+    elseif self.state == STATE.PAUSE then
+        self.timer = self.timer - dt
+        if self.timer <= 0 then
+            self.state = STATE.RETURN
+        end
+
+    -- ── RETURN ───────────────────────────────
+    elseif self.state == STATE.RETURN then
+        local reached = move_toward_y(self, self.roost_pos.y, CFG.return_speed, dt)
+        if reached then
+            self.timer = CFG.cooldown
+            self.state = STATE.COOLDOWN
+        end
+
+    -- ── COOLDOWN ─────────────────────────────
+    elseif self.state == STATE.COOLDOWN then
+        -- continue bobbing during cooldown so it looks alive
+        local pos = go.get_position()
+        pos.y = self.roost_pos.y
+              + math.sin(self.hover_t * CFG.hover_frequency * math.pi * 2)
+              * CFG.hover_amplitude
+        go.set_position(pos)
+
+        self.timer = self.timer - dt
+        if self.timer <= 0 then
+            self.state = STATE.HOVER
+        end
+    end
+end
+
+-- ─────────────────────────────────────────────
+-- COLLISION  (physics contact from engine)
+-- ─────────────────────────────────────────────
+function on_message(self, message_id, message, sender)
+    -- Defold sends "contact_point_response" from collision objects
+    if message_id == hash("contact_point_response") then
+        -- Check if we hit the player while swooping or pausing
+        if (self.state == STATE.SWOOP or self.state == STATE.PAUSE) then
+            local other_id = message.other_id
+            if other_id == self.player_id then
+                -- Notify the player they took a hit
+                msg.post(CFG.player_url, "take_damage", { damage = CFG.damage })
+                -- Start returning immediately so we don't keep damaging
+                self.state = STATE.RETURN
+            end
+        end
+    end
+end

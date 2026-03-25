@@ -8,3 +8,9 @@ embedded_components {
   data: "prototype: \"/stars/star.go\"\n"
   ""
 }
+embedded_components {
+  id: "bonus_factory"
+  type: "factory"
+  data: "prototype: \"\"\n"
+  ""
+}
