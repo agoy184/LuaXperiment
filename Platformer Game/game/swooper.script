@@ -7,7 +7,7 @@
 -- CONFIGURATION  (tweak these to taste)
 -- ─────────────────────────────────────────────
 local CFG = {
-    detect_width      = 60,   -- horizontal range (px) that triggers the swoop
+    detect_width      = 80,   -- horizontal range (px) that triggers the swoop
     detect_height     = 200,  -- how far BELOW the enemy to sense the player
     swoop_speed       = 380,  -- downward swoop speed (px/s)
     return_speed      = 120,  -- upward return speed (px/s)
@@ -16,7 +16,7 @@ local CFG = {
     attack_pause      = 0.18, -- seconds the enemy lingers at lowest point
     cooldown          = 1.4,  -- seconds before it can swoop again after returning
     damage            = 1,    -- sent to player on contact (optional)
-    player_url        = "/player#script",  -- URL of the player script (for messaging)
+    player_url        = "/player/player#script",  -- URL of the player script (nested in player collection)
 }
 
 -- ─────────────────────────────────────────────
@@ -40,10 +40,10 @@ function init(self)
     self.hover_t    = 0
     self.player_pos = nil
 
-    -- acquire player position reference each frame via a message, or poll directly
-    -- We'll poll via go.get_position on the player object.
-    -- Adjust the player id string if your player object has a different id/path.
-    self.player_id = go.get_id("/player")
+    -- The player lives inside a collection instance named "player", so the
+    -- runtime path includes the collection id as a prefix segment.
+    -- Adjust the inner object name if your player game object has a different id.
+    self.player_id = go.get_id("/player/player")
 end
 
 -- ─────────────────────────────────────────────
@@ -99,6 +99,7 @@ function update(self, dt)
             else
                 self.swoop_target_y = self.roost_pos.y - CFG.detect_height
             end
+            self.hit_this_swoop = false
             self.state = STATE.SWOOP
         end
 
@@ -145,16 +146,34 @@ end
 -- COLLISION  (physics contact from engine)
 -- ─────────────────────────────────────────────
 function on_message(self, message_id, message, sender)
-    -- Defold sends "contact_point_response" from collision objects
+    -- Defold sends "contact_point_response" for kinematic collision objects.
+    -- We must manually resolve the overlap by displacing the player,
+    -- since kinematic objects never auto-separate.
     if message_id == hash("contact_point_response") then
-        -- Check if we hit the player while swooping or pausing
-        if (self.state == STATE.SWOOP or self.state == STATE.PAUSE) then
-            local other_id = message.other_id
-            if other_id == self.player_id then
-                -- Notify the player they took a hit
-                msg.post(CFG.player_url, "take_damage", { damage = CFG.damage })
-                -- Start returning immediately so we don't keep damaging
-                self.state = STATE.RETURN
+        local other_id = message.other_id
+
+        if other_id == self.player_id then
+            -- ── Displacement: push the player out of overlap ──────────
+            -- message.normal points FROM the other object TO us, so negate
+            -- it to get the direction to push the player away.
+            -- message.distance is the penetration depth.
+            if message.distance > 0 then
+                local correction = vmath.mul_per_elem(
+                    -message.normal,           -- direction to push player
+                    vmath.vector3(message.distance, message.distance, 0)
+                )
+                local player_pos = go.get_position(self.player_id)
+                player_pos = player_pos + correction
+                go.set_position(player_pos, self.player_id)
+            end
+
+            -- ── Damage: only while actively attacking ─────────────────
+            if self.state == STATE.SWOOP or self.state == STATE.PAUSE then
+                if not self.hit_this_swoop then
+                    self.hit_this_swoop = true
+                    msg.post(CFG.player_url, "take_damage", { damage = CFG.damage })
+                    self.state = STATE.RETURN
+                end
             end
         end
     end
