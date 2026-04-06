@@ -1,0 +1,13 @@
+name: "main"
+scale_along_z: 0
+embedded_instances {
+  id: "go"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"default_animation: \\\"\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "\"\n"
+  "}\n"
+  ""
+}

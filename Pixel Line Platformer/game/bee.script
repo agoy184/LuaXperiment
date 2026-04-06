@@ -11,8 +11,9 @@ function init(self)
 	local pos = go.get_position()
 	local to = pos.y + self.distance
 	local duration = self.distance / SPEED
+	--Game object animation function, 
 	go.animate(".", "position.y", go.PLAYBACK_LOOP_PINGPONG, to, go.EASING_INOUTQUAD, duration)
-
+	
 	-- flip sprite
 	local flip = false
 	timer.delay(duration / 2, true, function()
