@@ -1,0 +1,7 @@
+images {
+  image: "/assets/Sprites/coin.png"
+}
+images {
+  image: "/assets/Sprites/player.png"
+}
+extrude_borders: 2

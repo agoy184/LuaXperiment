@@ -22,3 +22,7 @@ scale_mode = stretch
 [project]
 title = Intro
 
+[graphics]
+default_texture_min_filter = nearest
+default_texture_mag_filter = nearest
+
